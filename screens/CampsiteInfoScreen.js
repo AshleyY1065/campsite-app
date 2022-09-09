@@ -1,10 +1,11 @@
-import RenderCampsite from '../features/campsites/RenderCampsite';
-import { FlatList, Modal, StyleSheet, Text, View, Button } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleFavorite } from '../features/favorites/favoritesSlice';
 import { useState } from 'react';
+import { Button, FlatList, Modal, StyleSheet, Text, View } from 'react-native';
 import { Input, Rating } from 'react-native-elements';
+import { useSelector, useDispatch } from 'react-redux';
+import RenderCampsite from '../features/campsites/RenderCampsite';
+import { toggleFavorite } from '../features/favorites/favoritesSlice';
 import { postComment } from '../features/comments/commentsSlice';
+import * as Animatable from 'react-native-animatable';
 
 const CampsiteInfoScreen = ({ route }) => {
     const { campsite } = route.params;
@@ -24,14 +25,14 @@ const CampsiteInfoScreen = ({ route }) => {
             campsiteId: campsite.id
         };
         dispatch(postComment(newComment));
-        setShowModal(!showModal)
+        setShowModal(!showModal);
     };
 
     const resetForm = () => {
-        setAuthor(' ');
         setRating(5);
-        setText(' ');
-    }
+        setAuthor('');
+        setText('');
+    };
 
     const renderCommentItem = ({ item }) => {
         return (
@@ -40,8 +41,8 @@ const CampsiteInfoScreen = ({ route }) => {
                 <Rating
                     startingValue={item.rating}
                     imageSize={10}
-                    style={{ alignItem: 'flex-start', paddingVertical: '5%' }}
-                    readonly={true}
+                    readonly
+                    style={{ alignItems: 'flex-start', paddingVertical: '5%' }}
                 />
                 <Text style={{ fontSize: 12 }}>
                     {`-- ${item.author}, ${item.date}`}
@@ -51,7 +52,7 @@ const CampsiteInfoScreen = ({ route }) => {
     };
 
     return (
-        <>
+        <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
             <FlatList
                 data={comments.commentsArray.filter(
                     (comment) => comment.campsiteId === campsite.id
@@ -67,7 +68,9 @@ const CampsiteInfoScreen = ({ route }) => {
                         <RenderCampsite
                             campsite={campsite}
                             isFavorite={favorites.includes(campsite.id)}
-                            markFavorite={() => dispatch(toggleFavorite(campsite.id))}
+                            markFavorite={() =>
+                                dispatch(toggleFavorite(campsite.id))
+                            }
                             onShowModal={() => setShowModal(!showModal)}
                         />
                         <Text style={styles.commentsTitle}>Comments</Text>
@@ -82,8 +85,8 @@ const CampsiteInfoScreen = ({ route }) => {
             >
                 <View style={styles.modal}>
                     <Rating
-                        showRating={true}
-                        startingValue={5}
+                        showRating
+                        startingValue={rating}
                         imageSize={40}
                         onFinishRating={(rating) => setRating(rating)}
                         style={{ paddingVertical: 10 }}
@@ -104,28 +107,28 @@ const CampsiteInfoScreen = ({ route }) => {
                     />
                     <View style={{ margin: 10 }}>
                         <Button
-                            color='#5637DD'
-                            title='Submit'
                             onPress={() => {
                                 handleSubmit();
                                 resetForm();
                             }}
+                            color='#5637DD'
+                            title='Submit'
                         />
                     </View>
                     <View style={{ margin: 10 }}>
                         <Button
-                            color='#808080'
-                            title='Cancel'
                             onPress={() => {
-                                setShowModal(!showModal)
+                                setShowModal(!showModal);
                                 resetForm();
                             }}
+                            color='#808080'
+                            title='Cancel'
                         />
                     </View>
                 </View>
             </Modal>
-        </>
-    )
+        </Animatable.View>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -141,12 +144,11 @@ const styles = StyleSheet.create({
     commentItem: {
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
-        textAlign: 'center'
+        backgroundColor: '#fff'
     },
     modal: {
         justifyContent: 'center',
-        margin: 20,
+        margin: 20
     }
 });
 
